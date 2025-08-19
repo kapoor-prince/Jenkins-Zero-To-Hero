@@ -7,9 +7,9 @@ pipeline {
                 script {
                     writeFile file: 'index.html', text: '''
 <html>
-  <head><title>Hello from Apache</title></head>
+  <head><title>Live Apache Page</title></head>
   <body>
-    <h1>This is served by Apache running in Docker</h1>
+    <h1>This Apache server is running via Jenkins!</h1>
   </body>
 </html>
 '''
@@ -28,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('Run Apache with HTML') {
+        stage('Run Apache Server (Live)') {
             steps {
                 sh '''
                     docker run -d \
@@ -40,16 +40,10 @@ pipeline {
             }
         }
 
-        stage('Test Page') {
+        stage('Confirm Running') {
             steps {
-                sh 'curl -I http://localhost:8888 || true'
-            }
-        }
-
-        stage('Cleanup') {
-            steps {
-                sh 'docker stop apache-server || true'
-                sh 'docker rm apache-server || true'
+                sh 'docker ps | grep apache-server'
+                echo 'Visit http://<your-server-ip>:8888 in your browser to view the HTML page.'
             }
         }
     }
