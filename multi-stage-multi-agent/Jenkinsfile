@@ -1,22 +1,22 @@
 pipeline {
-    agent none
+    agent any
     stages {
-        stage('Back-end') {
+        stage('Run Apache Server') {
             agent {
-                docker { image 'maven:3.8.1-adoptopenjdk-11' }
+                docker {
+                    image 'httpd:latest'
+                    args '-p 8080:80'  // Map container port 80 to host port 8080
+                }
             }
             steps {
-                sh 'mvn --version'
-            }
-        }
-        stage('Front-end') {
-            agent {
-                docker { image 'node:16-alpine' }
-            }
-            steps {
-                sh 'node --version'
-                sh 'ps -ef'
+                sh 'echo "Apache container is running!"'
+                sh 'apt update && apt install -y iproute2'  // For `ip addr` (if needed)
+                sh 'ip addr show eth0 || hostname -I || ip a'
+                sh 'ps -ef'  // Show apache running
+                sh 'curl -I http://localhost:80'  // Check if Apache is serving
             }
         }
     }
+}
+
 }
