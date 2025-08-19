@@ -2,21 +2,18 @@ pipeline {
     agent any
     stages {
         stage('Run Apache Server') {
-            agent {
-                docker {
-                    image 'httpd:latest'
-                    args '-p 8080:80'  // Map container port 80 to host port 8080
-                }
-            }
             steps {
-                sh 'echo "Apache container is running!"'
-                sh 'apt update && apt install -y iproute2'  // For `ip addr` (if needed)
-                sh 'ip addr show eth0 || hostname -I || ip a'
-                sh 'ps -ef'  // Show apache running
-                sh 'curl -I http://localhost:80'  // Check if Apache is serving
+                sh 'docker run -d -p 8080:80 --name apache-server httpd:latest'
+                sh 'docker ps'
+                sh 'curl -I http://localhost:8080'
+                sh 'curl -s ifconfig.me'
+            }
+        }
+        stage('Cleanup') {
+            steps {
+                sh 'docker stop apache-server'
+                sh 'docker rm apache-server'
             }
         }
     }
-}
-
 }
