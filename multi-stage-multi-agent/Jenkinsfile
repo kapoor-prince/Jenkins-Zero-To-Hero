@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Run Apache Server') {
             steps {
-                sh 'docker run -d -p 8080:80 --name apache-server httpd:latest'
+                sh 'sh docker run -d -p 8888:80 --name apache-server httpd:latest'
                 sh 'docker ps'
                 sh 'curl -I http://localhost:8080'
                 sh 'curl -s ifconfig.me'
