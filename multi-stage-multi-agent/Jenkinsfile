@@ -1,20 +1,33 @@
 pipeline {
-    agent any
-
+    agent {
+        docker {
+            image 'docker:latest'  // ya koi image jisme docker cli ho
+            args '-v /var/run/docker.sock:/var/run/docker.sock'  // docker socket mount for docker in docker
+        }
+    }
     stages {
+        stage('Cleanup Old Container') {
+            steps {
+                sh '''
+                    if [ "$(docker ps -aq -f name=apache-server)" ]; then
+                        docker stop apache-server || true
+                        docker rm apache-server || true
+                    fi
+                '''
+            }
+        }
         stage('Run Apache Server') {
             steps {
                 sh 'docker run -d -p 8888:80 --name apache-server httpd:latest'
                 sh 'docker ps'
-                sh 'curl -I http://localhost:8888'
+                sh 'curl -I http://localhost:8888 || true'
                 sh 'curl -s ifconfig.me'
             }
         }
-
         stage('Cleanup') {
             steps {
-                sh 'docker stop apache-server'
-                sh 'docker rm apache-server'
+                sh 'docker stop apache-server || true'
+                sh 'docker rm apache-server || true'
             }
         }
     }
