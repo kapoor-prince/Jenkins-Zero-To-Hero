@@ -2,6 +2,21 @@ pipeline {
     agent any
 
     stages {
+        stage('Prepare HTML') {
+            steps {
+                script {
+                    writeFile file: 'index.html', text: '''
+<html>
+  <head><title>Hello from Apache</title></head>
+  <body>
+    <h1>This is served by Apache running in Docker</h1>
+  </body>
+</html>
+'''
+                }
+            }
+        }
+
         stage('Cleanup Old Container') {
             steps {
                 sh '''
@@ -13,12 +28,21 @@ pipeline {
             }
         }
 
-        stage('Run Apache Server') {
+        stage('Run Apache with HTML') {
             steps {
-                sh 'docker run -d -p 8888:80 --name apache-server httpd:latest'
-                sh 'docker ps'
+                sh '''
+                    docker run -d \
+                      -p 8888:80 \
+                      --name apache-server \
+                      -v $(pwd)/index.html:/usr/local/apache2/htdocs/index.html \
+                      httpd:latest
+                '''
+            }
+        }
+
+        stage('Test Page') {
+            steps {
                 sh 'curl -I http://localhost:8888 || true'
-                sh 'curl -s ifconfig.me'
             }
         }
 
