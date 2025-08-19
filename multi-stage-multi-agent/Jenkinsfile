@@ -46,5 +46,14 @@ pipeline {
                 echo 'Visit http://<your-server-ip>:8888 in your browser to view the HTML page.'
             }
         }
+
+        stage('Show Access Info') {
+            steps {
+                sh '''
+                    echo "🔗 Open this URL in your browser:"
+                    echo "http://$(curl -s ifconfig.me):8888"
+                '''
+            }
+        }
     }
 }
