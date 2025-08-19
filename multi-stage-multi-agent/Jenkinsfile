@@ -1,14 +1,16 @@
 pipeline {
     agent any
+
     stages {
         stage('Run Apache Server') {
             steps {
-                sh 'sh docker run -d -p 8888:80 --name apache-server httpd:latest'
+                sh 'docker run -d -p 8888:80 --name apache-server httpd:latest'
                 sh 'docker ps'
-                sh 'curl -I http://localhost:8080'
+                sh 'curl -I http://localhost:8888'
                 sh 'curl -s ifconfig.me'
             }
         }
+
         stage('Cleanup') {
             steps {
                 sh 'docker stop apache-server'
